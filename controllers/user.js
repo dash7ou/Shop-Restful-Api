@@ -19,7 +19,7 @@ exports.postSignUp = async (req, res, next) => {
     });
 
     await user.save();
-    res.send({
+    res.status(200).send({
       Email: user.email,
       Name: user.name,
       Age: user.age,
