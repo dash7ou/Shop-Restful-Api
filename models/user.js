@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const bcryptjs = require("bcryptjs");
 
 const userSchema = new mongoose.Schema(
   {
@@ -53,6 +54,26 @@ const userSchema = new mongoose.Schema(
     timestamps: true
   }
 );
+userSchema.statics.emailExist = async email => {
+  const existEmail = await User.findOne({ email: email });
+  const error = {};
+  if (existEmail) {
+    error.message = new Error("This email is exist try another one");
+    error.statusCode = 422;
+    error.data = "";
+    throw error;
+  }
+  return email;
+};
+
+userSchema.pre("save", async function(res, req, next) {
+  const user = this;
+
+  if (user.isModified("password")) {
+    user.password = await bcryptjs.hash(user.password, 12);
+  }
+  next();
+});
 
 const User = mongoose.model("User", userSchema);
 
