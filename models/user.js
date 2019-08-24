@@ -66,6 +66,30 @@ userSchema.statics.emailExist = async email => {
   return email;
 };
 
+userSchema.statics.checkUser = async (email, password) => {
+  const emailExist = await User.findOne({ email: email });
+
+  if (!emailExist) {
+    const error = {};
+    error.message = new Error("There are problem in your email or password");
+    error.statusCode = 422;
+    error.data = "";
+    throw error;
+  }
+  const passwordMatch = await bcryptjs.compare(password, emailExist.password);
+  if (!passwordMatch) {
+    const error = {};
+    error.message = new Error(
+      "There are problem in your email or password xxx"
+    );
+    error.statusCode = 422;
+    error.data = "";
+    throw error;
+  }
+
+  return emailExist;
+};
+
 userSchema.pre("save", async function(res, req, next) {
   const user = this;
 

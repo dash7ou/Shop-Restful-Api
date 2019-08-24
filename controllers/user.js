@@ -2,7 +2,7 @@ const { User } = require("../models/user");
 
 exports.postSignUp = async (req, res, next) => {
   try {
-    const email = await User.emailExist(req.body.email);
+    const email = await User.emailExist(req.body.email, req.body.password);
     if (!email) {
       const error = {};
       error.message = new Error("This Email already exist");
