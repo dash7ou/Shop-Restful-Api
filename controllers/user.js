@@ -1,8 +1,18 @@
 const { User } = require("../models/user");
+const { validationResult } = require("express-validator");
 
 exports.postSignUp = async (req, res, next) => {
   try {
     const email = await User.emailExist(req.body.email, req.body.password);
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const error = {};
+      error.message = new Error("Validation Felid");
+      error.statusCode = 422;
+      error.data = errors.array();
+      throw error;
+    }
+
     if (!email) {
       const error = {};
       error.message = new Error("This Email already exist");
@@ -26,7 +36,7 @@ exports.postSignUp = async (req, res, next) => {
       Products: user.products
     });
   } catch (err) {
-    if (err.statusCode) {
+    if (!err.statusCode) {
       err.statusCode = 500;
     }
     next(err);
