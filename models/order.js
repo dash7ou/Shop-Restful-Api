@@ -17,7 +17,11 @@ const orderSchema = new mongoose.Schema({
       product: { type: Object, required: true },
       quantity: { type: Number, required: true }
     }
-  ]
+  ],
+  totalPrice: {
+    type: Number,
+    required: true
+  }
 });
 
 const Order = mongoose.model("Order", orderSchema);

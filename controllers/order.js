@@ -2,8 +2,58 @@ const { User } = require("../models/user");
 const { Product } = require("../models/product");
 const { Order } = require("../models/order");
 
-exports.getOrders = async (req, res, next) => {};
-exports.getOrder = async (req, res, next) => {};
+exports.getOrders = async (req, res, next) => {
+  try {
+    const userId = req.userId;
+    const orders = await Order.find();
+
+    let ordersUser = [];
+    orders.forEach(order => {
+      if (order.user.userId.toString() === userId.toString()) {
+        ordersUser.push(order);
+      }
+    });
+    res.send({
+      message: "Fetch orders done.",
+      orders: ordersUser
+    });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+exports.getOrder = async (req, res, next) => {
+  try {
+    const orderId = req.params.id;
+    const order = await Order.findById(orderId);
+    if (!order) {
+      let error = {};
+      error.message = new Error("No order found...");
+      error.statusCode = 404;
+      error.data = "";
+      throw error;
+    }
+    if (order.user.userId.toString() === req.userId.toString()) {
+      let error = {};
+      error.message = new Error("user not owner a order..");
+      error.statusCode = 422;
+      error.data = "";
+      throw error;
+    }
+
+    res.send({
+      message: "Fetching orders done.",
+      order: order
+    });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
 exports.postOrder = async (req, res, next) => {
   /**
      * send like this:-
@@ -52,13 +102,18 @@ exports.postOrder = async (req, res, next) => {
       error.data = "";
       throw error;
     }
+    let totalPrice = 0;
+    products.forEach(
+      product => (totalPrice += product.product.price * product.quantity)
+    );
 
     const order = new Order({
       user: {
         userEmail: user.email,
         userId: user.id
       },
-      products: products
+      products: products,
+      totalPrice: totalPrice
     });
     await order.save();
     res.send({
