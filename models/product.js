@@ -22,9 +22,9 @@ const productSchema = new mongoose.Schema(
       required: true,
       trim: true
     },
-    user: {
+    author: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Product",
+      ref: "User",
       required: true
     }
   },
