@@ -4,10 +4,12 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const userRouter = require("./routers/user");
 const productRouter = require("./routers/product");
+const orderRouter = require("./routers/order");
 
 app.use(bodyParser.json());
 app.use("/users", userRouter);
 app.use("/product", productRouter);
+app.use("/order", orderRouter);
 
 const handelingerrors = (error, req, res, next) => {
   let data = "";
