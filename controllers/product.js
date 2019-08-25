@@ -1,5 +1,6 @@
 const { Product } = require("../models/product");
 const { User } = require("../models/user");
+const { validationResult } = require("express-validator");
 
 exports.getProducts = async (req, res, next) => {
   try {
@@ -51,6 +52,14 @@ exports.getProduct = async (req, res, next) => {
 
 exports.postProduct = async (req, res, next) => {
   try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const error = {};
+      error.message = new Error("Validation filed");
+      error.statusCode = 422;
+      error.data = errors.array();
+      throw error;
+    }
     const user = await User.findById(req.userId);
     const name = req.body.name;
     const photo = req.body.photo;
