@@ -42,3 +42,26 @@ exports.postSignUp = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.getUserProfile = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.userId).select("-password");
+    if (!user) {
+      const error = {};
+      error.message = new Error("No user found");
+      error.statusCode = 422;
+      error.data = "";
+      throw error;
+    }
+
+    res.send({
+      message: "User Found.",
+      user: user
+    });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
