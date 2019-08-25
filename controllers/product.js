@@ -161,6 +161,8 @@ exports.putProduct = async (req, res, next) => {
 exports.deleteProduct = async (req, res, next) => {
   try {
     const product = await Product.findById(req.params.id);
+
+    const user = await User.findById(req.userId);
     if (!product) {
       const error = {};
       error.message = new Error("No product to delete it..");
@@ -182,6 +184,17 @@ exports.deleteProduct = async (req, res, next) => {
       _id: product._id,
       author: req.userId
     });
+
+    let indexProductInUser = 0;
+    user.products.items.forEach(productUser => {
+      if (productUser.product.toString() === product.id.toString()) {
+        indexProductInUser = user.products.items.indexOf(productUser);
+      }
+    });
+
+    user.products.items.splice(indexProductInUser, 1);
+    await user.save();
+
     res.send({
       message: "Deleted Product!",
       product: product
